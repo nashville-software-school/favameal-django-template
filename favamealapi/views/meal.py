@@ -16,7 +16,9 @@ class MealSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Meal
-        fields = ('id', 'name', 'restaurant', 'user_rating', 'avg_rating')
+        fields = ('id', 'name', 'restaurant',)
+
+        # TODO: Add 'user_rating', 'avg_rating' fields to MealSerializer
 
 
 class MealView(ViewSet):
@@ -57,7 +59,7 @@ class MealView(ViewSet):
             # TODO: Assign a value to the `is_favorite` property of requested meal
 
 
-            serializer = RestaurantSerializer(
+            serializer = MealSerializer(
                 meal, context={'request': request})
             return Response(serializer.data)
         except Exception as ex:
