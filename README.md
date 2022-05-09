@@ -24,7 +24,9 @@ After implementing the features for this application, you should know the differ
 1. Clone the repository to a directory of your choosing.
 1. Start the virtual environment with `pipenv shell`
 1. Start the API with `python manage.py runserver`
-1. Open Postman and verify that the current functionality _(list below)_ works.
+1. No need to migrate. The db has already been created, and a small amount of dummy data has been added to some of the tables. Use SQLite Explorer to take a look.
+1. Consider creating a new user so you know what the password is. Then login with Postman or Thunder Client, so you can grab the auth token for the next part. You'll need to include it in your request header.
+1. Verify that the current functionality _(list below)_ works.
 
 ## Current Capabilities
 
