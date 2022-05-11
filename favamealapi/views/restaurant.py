@@ -57,6 +57,7 @@ class RestaurantView(ViewSet):
             restaurant = Restaurant.objects.get(pk=pk)
 
             # TODO: Add the correct value to the `favorite` property of the requested restaurant
+            # Hint -- remember the 'related_name' for referencing the records of users who have favorited this restaurant
 
             serializer = RestaurantSerializer(
                 restaurant, context={'request': request})
@@ -73,6 +74,8 @@ class RestaurantView(ViewSet):
         restaurants = Restaurant.objects.all()
 
         # TODO: Add the correct value to the `favorite` property of each restaurant
+        # Hint -- Iterate over restaurants and look at each one's collection of favorites.
+        # Remember the 'related_name' for referencing the records of users who have favorited this restaurant
 
 
         serializer = RestaurantSerializer(restaurants, many=True, context={'request': request})
