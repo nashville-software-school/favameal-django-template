@@ -22,11 +22,11 @@ After implementing the features for this application, you should know the differ
 ## Setup
 
 1. Clone the repository to a directory of your choosing.
-1. Start the virtual environment with `pipenv shell`
-1. Start the API with `python manage.py runserver`
-1. No need to migrate. The db has already been created, and a small amount of dummy data has been added to some of the tables. Use SQLite Explorer to take a look.
-1. Consider creating a new user so you know what the password is. Then login with Postman or Thunder Client, so you can grab the auth token for the next part. You'll need to include it in your request header.
-1. Verify that the current functionality _(list below)_ works.
+2. Start the virtual environment with `pipenv install && pipenv shell`
+3. Load the migrations: `python3 manage.py migrate`
+4. Load the fixtures: `python3 manage.py loaddata fixtures`
+5. Consider creating a new user so you know what the password is. Then login with Postman or Thunder Client, so you can grab the auth token for the next part. You'll need to include it in your request header.
+6. Verify that the current functionality _(list below)_ works.
 
 ## Current Capabilities
 
@@ -56,10 +56,10 @@ Users should be able to mark a restaurant as a favorite, and also remove that ch
 
 | Method | URL |
 |--------|-----|
-| POST | http://localhost:8080/restaurants/1/star  |
-| DELETE | http://localhost:8080/restaurants/1/star  |
+| POST | http://localhost:8080/restaurants/1/favorite  |
+| DELETE | http://localhost:8080/restaurants/1/unfavorite  |
 
-When the client requests all restaurants, or a single restaurant, each JSON representation of a restaurant should have a `favorite` property. The value of the property must be `true` if the current user has marked it as a favorite, and `false` if the user hasn't.
+When the client requests all restaurants, or a single restaurant, each JSON representation of a restaurant should have a `is_favorite` property. The value of the property must be `true` if the current user has marked it as a favorite, and `false` if the user hasn't.
 
 ### Favorite a Meal
 
@@ -67,10 +67,10 @@ Users should be able to mark a meal as a favorite, and also remove that choice.
 
 | Method | URL |
 |--------|-----|
-| POST | http://localhost:8080/meals/1/star  |
-| DELETE | http://localhost:8080/meals/1/star  |
+| POST | http://localhost:8080/meals/1/favorite  |
+| DELETE | http://localhost:8080/meals/1/unfavorite  |
 
-When the client requests all meals, or a single meal, each JSON representation of a meal should have a `favorite` property. The value of the property must be `true` if the current user has marked it as a favorite, and `false` if the user hasn't.
+When the client requests all meals, or a single meal, each JSON representation of a meal should have a `is_favorite` property. The value of the property must be `true` if the current user has marked it as a favorite, and `false` if the user hasn't.
 
 ### Rate a Meal
 

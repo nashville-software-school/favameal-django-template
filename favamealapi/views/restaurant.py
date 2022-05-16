@@ -1,11 +1,9 @@
 """View module for handling requests about restaurants"""
-from django.core.exceptions import ValidationError
-from django.http import HttpResponseServerError
+from rest_framework.exceptions import ValidationError
 from rest_framework import serializers, status
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 from favamealapi.models import Restaurant
-from favamealapi.models.favoriterestaurant import FavoriteRestaurant
 
 
 class RestaurantSerializer(serializers.ModelSerializer):
@@ -13,17 +11,8 @@ class RestaurantSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Restaurant
+        # TODO: Add 'is_favorite' field to RestaurantSerializer
         fields = ('id', 'name', 'address',)
-
-        # TODO: Add 'favorite' field to RestaurantSerializer
-
-class FaveSerializer(serializers.ModelSerializer):
-    """JSON serializer for favorites"""
-
-    class Meta:
-        model = FavoriteRestaurant
-        fields = ('restaurant',)
-        depth = 1
 
 
 class RestaurantView(ViewSet):
@@ -35,14 +24,12 @@ class RestaurantView(ViewSet):
         Returns:
             Response -- JSON serialized event instance
         """
-        rest = Restaurant()
-        rest.name = request.data["name"]
-        rest.address = request.data["address"]
-
         try:
-            rest.save()
-            serializer = RestaurantSerializer(
-                rest, context={'request': request})
+            rest = Restaurant.objects.create(
+                name=request.data['name'],
+                address=request.data["address"]
+            )
+            serializer = RestaurantSerializer(rest)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except ValidationError as ex:
             return Response({"reason": ex.message}, status=status.HTTP_400_BAD_REQUEST)
@@ -56,14 +43,13 @@ class RestaurantView(ViewSet):
         try:
             restaurant = Restaurant.objects.get(pk=pk)
 
-            # TODO: Add the correct value to the `favorite` property of the requested restaurant
-            # Hint -- remember the 'related_name' for referencing the records of users who have favorited this restaurant
+            # TODO: Add the correct value to the `is_favorite` property of the requested restaurant
+            # Hint -- remember the 'many to many field' for referencing the records of users who have favorited this restaurant
 
-            serializer = RestaurantSerializer(
-                restaurant, context={'request': request})
+            serializer = RestaurantSerializer(restaurant)
             return Response(serializer.data)
-        except Exception as ex:
-            return HttpResponseServerError(ex)
+        except Restaurant.DoesNotExist as ex:
+            return Response({"reason": ex.message}, status=status.HTTP_404_NOT_FOUND)
 
     def list(self, request):
         """Handle GET requests to restaurants resource
@@ -73,14 +59,16 @@ class RestaurantView(ViewSet):
         """
         restaurants = Restaurant.objects.all()
 
-        # TODO: Add the correct value to the `favorite` property of each restaurant
+        # TODO: Add the correct value to the `is_favorite` property of each restaurant
         # Hint -- Iterate over restaurants and look at each one's collection of favorites.
-        # Remember the 'related_name' for referencing the records of users who have favorited this restaurant
+        # Remember the 'many to many field' for referencing the records of users who have favorited this restaurant
 
-
-        serializer = RestaurantSerializer(restaurants, many=True, context={'request': request})
+        serializer = RestaurantSerializer(restaurants, many=True)
 
         return Response(serializer.data)
 
-    # TODO: Write a custom action named `star` that will allow a client to
-    # send a POST and a DELETE request to /restaurant/2/star
+    # TODO: Write a custom action named `favorite` that will allow a client to
+    # send a POST request to /restaurant/2/favorite and add the restaurant as a favorite
+
+    # TODO: Write a custom action named `unfavorite` that will allow a client to
+    # send a POST request to /restaurant/2/unfavorite and remove the restaurant as a favorite

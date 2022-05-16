@@ -1,6 +1,5 @@
 """View module for handling requests about meals"""
-from django.core.exceptions import ValidationError
-from django.http import HttpResponseServerError
+from rest_framework.exceptions import ValidationError
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.viewsets import ViewSet
@@ -16,9 +15,9 @@ class MealSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Meal
+        # TODO: Add 'user_rating', 'avg_rating', 'is_favorite' fields to MealSerializer
         fields = ('id', 'name', 'restaurant',)
 
-        # TODO: Add 'user_rating', 'avg_rating' fields to MealSerializer
 
 
 class MealView(ViewSet):
@@ -30,15 +29,13 @@ class MealView(ViewSet):
         Returns:
             Response -- JSON serialized meal instance
         """
-        meal = Meal()
-        meal.name = request.data["name"]
-        meal.restaurant = Restaurant.objects.get(pk=request.data["restaurant_id"])
-
-
         try:
-            meal.save()
-            serializer = MealSerializer(
-                meal, context={'request': request})
+            meal = Meal.objects.create(
+                name=request.data["name"],
+                restaurant=Restaurant.objects.get(
+                    pk=request.data["restaurant_id"])
+            )
+            serializer = MealSerializer(meal)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except ValidationError as ex:
             return Response({"reason": ex.message}, status=status.HTTP_400_BAD_REQUEST)
@@ -58,12 +55,10 @@ class MealView(ViewSet):
 
             # TODO: Assign a value to the `is_favorite` property of requested meal
 
-
-            serializer = MealSerializer(
-                meal, context={'request': request})
+            serializer = MealSerializer(meal)
             return Response(serializer.data)
-        except Exception as ex:
-            return HttpResponseServerError(ex)
+        except Meal.DoesNotExist as ex:
+            return Response({"reason": ex.message}, status=status.HTTP_404_NOT_FOUND)
 
     def list(self, request):
         """Handle GET requests to meals resource
@@ -79,8 +74,7 @@ class MealView(ViewSet):
 
         # TODO: Assign a value to the `is_favorite` property of each meal
 
-        serializer = MealSerializer(
-            meals, many=True, context={'request': request})
+        serializer = MealSerializer(meals, many=True)
 
         return Response(serializer.data)
 
@@ -89,9 +83,10 @@ class MealView(ViewSet):
     #       {
     #           "rating": 3
     #       }
+    # If the request is a PUT request, then the method should update the user's rating instead of creating a new one
 
+    # TODO: Add a custom action named `favorite` that will allow a client to send a
+    #  POST request to /meals/3/favorite and add the meal as a favorite
 
-
-
-    # TODO: Add a custom action named `star` that will allow a client to send a
-    #  POST and a DELETE request to /meals/3/star.
+    # TODO: Add a custom action named `unfavorite` that will allow a client to send a
+    # DELETE request to /meals/3/unfavorite and remove the meal as a favorite
